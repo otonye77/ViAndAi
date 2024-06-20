@@ -47,6 +47,11 @@
 }
 
 .eye-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 25px;
+    height: 25px;
     padding: 5px;
     margin-left: 5px;
     background-color: #ECE8FF;
