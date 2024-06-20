@@ -65,3 +65,11 @@
     background-color: #755AE2;
     border-radius: 50%;
 }
+
+@media (max-width: 768px) {
+
+    .card-camera-container {
+        flex-direction: column;
+        height: auto;
+    }
+}

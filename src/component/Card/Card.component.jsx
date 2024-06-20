@@ -164,9 +164,9 @@ const Card = () => {
                     )}
                
                 </div>
-                 {
+                 {/* {
                     imageCaptured && <Modal />
-                 }
+                 } */}
             </div>
         </div>
     );
