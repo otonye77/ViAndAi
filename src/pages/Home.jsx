@@ -1,4 +1,5 @@
 import Header from "../component/Header/Header.component";
+import Card from "../component/Card/Card.component";
 import "./Home.css";
 
 const Home = () => {
@@ -6,7 +7,10 @@ const Home = () => {
         <div>
             <Header />
             <div className="body-container">
-                <h1>Body</h1>
+                <br />
+                <div className="body-card">
+                    <Card />
+                </div>
             </div>
         </div>
     )

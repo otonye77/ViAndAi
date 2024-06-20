@@ -1,0 +1,11 @@
+.button-component {
+    margin-top: 20px;
+}
+
+.button {
+    background-color: #755AE2;
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+}

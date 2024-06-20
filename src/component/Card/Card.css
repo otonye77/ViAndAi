@@ -1,0 +1,45 @@
+.card-container {
+    width: 100%;
+}
+
+.card-camera-container {
+    display: flex;
+    padding-top: 30px;
+}
+
+.card-inner-container {
+    width: 62%;
+    background-color: white;
+    padding: 30px;
+    margin: 0 auto;
+}
+
+.connectivities-icons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 10px;
+    padding-left: 20px;
+}
+
+.icon-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px;
+    background-color: #F5F3FF;
+}
+
+.icon-image{
+    width: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.icon-image-container {
+    display: flex;
+    justify-content: center;
+}
+
+.icon-title {
+    text-align: center;
+}
