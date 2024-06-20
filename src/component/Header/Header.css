@@ -1,0 +1,54 @@
+.header-comp {
+    background-color: white;
+}
+
+.header-container {
+    width: 90%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    padding-top: 15px;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.logo-span-title{
+    font-weight: 600;
+}
+
+.logo-title {
+    display: flex;
+    flex-direction: column;
+    margin-left: 15px;
+}
+
+.time-card {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    background-color: #ECE8FF;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.time-container {
+    display: flex;
+    align-items: center;
+}
+
+.time-span {
+    padding-left: 10px;
+    color: #755AE2;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.eye-container {
+    padding: 5px;
+    margin-left: 5px;
+    background-color: #ECE8FF;
+    border-radius: 50%;
+}
