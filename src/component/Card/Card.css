@@ -5,6 +5,7 @@
 .card-camera-container {
     display: flex;
     padding-top: 30px;
+    height: 220px;
 }
 
 .card-inner-container {
@@ -22,6 +23,7 @@
 }
 
 .icon-container {
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -29,7 +31,7 @@
     background-color: #F5F3FF;
 }
 
-.icon-image{
+.icon-image {
     width: 20px;
     display: flex;
     justify-content: center;
@@ -42,4 +44,24 @@
 
 .icon-title {
     text-align: center;
+}
+
+.purple-circle {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 15px;
+    height: 15px;
+    background-color: #755AE2;
+    border-radius: 50%;
+}
+
+.purple-wifi{
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 15px;
+    height: 15px;
+    background-color: #755AE2;
+    border-radius: 50%;
 }

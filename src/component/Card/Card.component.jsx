@@ -3,32 +3,16 @@ import MonitorRecorder from "../../Images/monitor-recorder.svg";
 import Wifi from "../../Images/wifi.svg";
 import LampCharge from "../../Images/lamp-charge.svg";
 import Rectangle from "../../Images/Rectangle.svg";
-import TickCircle from "../../Images/tick-circle.svg";
+import Microphone from "../../Images/microphone.svg";
+import Recorder from "../../Images/recorder.svg";
+import Lamp from "../../Images/lamp.svg";
 import Button from "../Button/Button.component";
+import WifiWhite from "../../Images/wifiwhite.svg";
+import Modal from "../Modal/Modal.component";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useEffect, useState, useRef } from "react";
+import CheckCircle from "@mui/icons-material/CheckCircle";
 
-const initialIcons = [
-    {
-        id: 1,
-        icon: MonitorRecorder,
-        title: "Webcam"
-    },
-    {
-        id: 2,
-        icon: Wifi,
-        title: "Speed"
-    },
-    {
-        id: 3,
-        icon: MonitorRecorder,
-        title: "Gadget Mic"
-    },
-    {
-        id: 4,
-        icon: LampCharge,
-        title: "Lighting"
-    },
-];
 
 const Card = () => {
     const [micAccess, setMicAccess] = useState(null);
@@ -38,6 +22,8 @@ const Card = () => {
     const [imageCaptured, setImageCaptured] = useState(null);
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
+
+    console.log(imageCaptured);
 
     useEffect(() => {
         const checkMediaDevices = async () => {
@@ -74,32 +60,6 @@ const Card = () => {
         };
     }, []);
 
-    const requestMicAccess = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            setMicAccess(true);
-            stream.getTracks().forEach(track => track.stop());
-        } catch (error) {
-            console.error("Microphone access denied", error);
-        }
-    };
-
-    const requestCameraAccess = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            setCameraAccess(true);
-            if (videoRef.current) {
-                videoRef.current.srcObject = stream;
-            }
-
-            
-            setTimeout(checkLightingConditions, 1000);
-
-        } catch (error) {
-            console.error("Camera access denied", error);
-        }
-    };
-
     const checkLightingConditions = () => {
         if (videoRef.current && canvasRef.current) {
             const canvas = canvasRef.current;
@@ -119,37 +79,8 @@ const Card = () => {
             }
 
             const brightness = Math.floor(colorSum / (canvas.width * canvas.height));
-            setLightingGood(brightness > 100); 
+            setLightingGood(brightness > 100);
         }
-    };
-
-    const getUpdatedIcons = () => {
-        return initialIcons.map(icon => {
-            switch (icon.id) {
-                case 3:
-                    return {
-                        ...icon,
-                        icon: micAccess ? TickCircle : MonitorRecorder
-                    };
-                case 1:
-                    return {
-                        ...icon,
-                        icon: cameraAccess ? TickCircle : MonitorRecorder
-                    };
-                case 4:
-                    return {
-                        ...icon,
-                        icon: lightingGood ? TickCircle : LampCharge
-                    };
-                case 2:
-                    return {
-                        ...icon,
-                        icon: online ? TickCircle : Wifi
-                    };
-                default:
-                    return icon;
-            }
-        });
     };
 
     const captureImage = () => {
@@ -188,35 +119,54 @@ const Card = () => {
                         )}
                     </div>
                     <div className="connectivities-icons">
-                        {getUpdatedIcons().map((item) => (
-                            <div key={item.id} className="icon-container">
+                        
+                            <div className="icon-container">
+                                {cameraAccess ?  <img src={Recorder} alt="" className="purple-wifi" /> : <div className="purple-circle"></div>}
                                 <div className="icon-image-container">
-                                    <img src={item.icon} alt={item.title} className="icon-image" />
+                                        {cameraAccess ? 
+                                           <CheckCircle /> : 
+                                        <img src={MonitorRecorder} alt="" className="icon-image" />
+                                        }
                                 </div>
-                                <span className="icon-title">{item.title}</span>
+                                <span className="icon-title">Webcam</span>
                             </div>
-                        ))}
+
+                            <div  className="icon-container">
+                                {online ? <img src={WifiWhite} alt="" className="purple-wifi" /> :  <div className="purple-circle"></div>}
+                                <div className="icon-image-container">
+                                        {online ? <CheckCircle /> : 
+                                          <img src={Wifi} alt="" className="icon-image" />
+                                        }
+                                </div>
+                                <span className="icon-title">Wifi</span>
+                            </div>
+
+                            <div className="icon-container">
+                                {micAccess ? <img src={Microphone} alt="" className="purple-wifi" /> : <div className="purple-circle"></div>}
+                                <div className="icon-image-container">
+                                        {micAccess ? <CheckCircle /> :<img src={MonitorRecorder} alt="" className="icon-image" />}
+                                </div>
+                                <span className="icon-title">Gadget Mic</span>
+                            </div>
+
+                            <div  className="icon-container">
+                                {lightingGood ? <img src={Lamp} alt="" className="purple-wifi" /> : <div className="purple-circle"></div>}
+                                <div className="icon-image-container">
+                                        {lightingGood ? <CheckCircle /> : <img src={LampCharge} alt="" className="icon-image" />}
+                                </div>
+                                <span className="icon-title">Lighting</span>
+                            </div>
                     </div>
                 </div>
                 <div>
-                    {(micAccess === false || cameraAccess === false || lightingGood === false || !online) && (
-                        <div className="access-warning">
-                            <p>
-                                {micAccess === false && "Microphone access is required. "}
-                                {cameraAccess === false && "Camera access is required. "}
-                                {lightingGood === false && "Good lighting is required. "}
-                                {!online && "Internet connection is required. "}
-                                Please click the button below to enable.
-                            </p>
-                            <button onClick={micAccess === false ? requestMicAccess : requestCameraAccess}>
-                                {micAccess === false ? "Enable Microphone" : "Enable Camera"}
-                            </button>
-                        </div>
+                {(micAccess && cameraAccess && lightingGood && online) && (
+                        <Button title="Take picture and continue" onClick={captureImage} />
                     )}
-                    {(micAccess && cameraAccess && lightingGood && online) && (
-                        <Button onClick={captureImage} />
-                    )}
+               
                 </div>
+                 {
+                    imageCaptured && <Modal />
+                 }
             </div>
         </div>
     );
