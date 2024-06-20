@@ -5,27 +5,74 @@ import LampCharge from "../../Images/lamp-charge.svg";
 import Rectangle from "../../Images/Rectangle.svg";
 import TickCircle from "../../Images/tick-circle.svg";
 import Button from "../Button/Button.component";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
+const initialIcons = [
+    {
+        id: 1,
+        icon: MonitorRecorder,
+        title: "Webcam"
+    },
+    {
+        id: 2,
+        icon: Wifi,
+        title: "Speed"
+    },
+    {
+        id: 3,
+        icon: MonitorRecorder,
+        title: "Gadget Mic"
+    },
+    {
+        id: 4,
+        icon: LampCharge,
+        title: "Lighting"
+    },
+];
 
 const Card = () => {
     const [micAccess, setMicAccess] = useState(null);
+    const [cameraAccess, setCameraAccess] = useState(null);
+    const [lightingGood, setLightingGood] = useState(null);
+    const [online, setOnline] = useState(navigator.onLine);
+    const [imageCaptured, setImageCaptured] = useState(null);
+    const videoRef = useRef(null);
+    const canvasRef = useRef(null);
 
     useEffect(() => {
-        const checkMicrophone = async () => {
+        const checkMediaDevices = async () => {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 setMicAccess(true);
-                stream.getTracks().forEach(track => track.stop());
+                micStream.getTracks().forEach(track => track.stop());
+
+                const cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                setCameraAccess(true);
+                if (videoRef.current) {
+                    videoRef.current.srcObject = cameraStream;
+                }
+
+                setTimeout(checkLightingConditions, 1000);
+
             } catch (error) {
                 setMicAccess(false);
+                setCameraAccess(false);
             }
         };
 
-        checkMicrophone();
-    }, []);
+        checkMediaDevices();
 
-    console.log("mic access ", micAccess);
+        const handleOnline = () => setOnline(true);
+        const handleOffline = () => setOnline(false);
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
 
     const requestMicAccess = async () => {
         try {
@@ -34,6 +81,84 @@ const Card = () => {
             stream.getTracks().forEach(track => track.stop());
         } catch (error) {
             console.error("Microphone access denied", error);
+        }
+    };
+
+    const requestCameraAccess = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            setCameraAccess(true);
+            if (videoRef.current) {
+                videoRef.current.srcObject = stream;
+            }
+
+            
+            setTimeout(checkLightingConditions, 1000);
+
+        } catch (error) {
+            console.error("Camera access denied", error);
+        }
+    };
+
+    const checkLightingConditions = () => {
+        if (videoRef.current && canvasRef.current) {
+            const canvas = canvasRef.current;
+            const context = canvas.getContext('2d');
+            context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            let r, g, b, avg;
+            let colorSum = 0;
+
+            for (let x = 0, len = data.length; x < len; x += 4) {
+                r = data[x];
+                g = data[x + 1];
+                b = data[x + 2];
+                avg = Math.floor((r + g + b) / 3);
+                colorSum += avg;
+            }
+
+            const brightness = Math.floor(colorSum / (canvas.width * canvas.height));
+            setLightingGood(brightness > 100); 
+        }
+    };
+
+    const getUpdatedIcons = () => {
+        return initialIcons.map(icon => {
+            switch (icon.id) {
+                case 3:
+                    return {
+                        ...icon,
+                        icon: micAccess ? TickCircle : MonitorRecorder
+                    };
+                case 1:
+                    return {
+                        ...icon,
+                        icon: cameraAccess ? TickCircle : MonitorRecorder
+                    };
+                case 4:
+                    return {
+                        ...icon,
+                        icon: lightingGood ? TickCircle : LampCharge
+                    };
+                case 2:
+                    return {
+                        ...icon,
+                        icon: online ? TickCircle : Wifi
+                    };
+                default:
+                    return icon;
+            }
+        });
+    };
+
+    const captureImage = () => {
+        if (videoRef.current && canvasRef.current) {
+            const canvas = canvasRef.current;
+            const context = canvas.getContext('2d');
+            context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/png');
+            setImageCaptured(dataUrl);
         }
     };
 
@@ -53,43 +178,44 @@ const Card = () => {
                 </div>
                 <div className="card-camera-container">
                     <div className="empty-photo">
-                        <img src={Rectangle} alt="" />
+                        {!cameraAccess && !imageCaptured && <img src={Rectangle} alt="" />}
+                        {cameraAccess && !imageCaptured && (
+                            <video ref={videoRef} autoPlay muted style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        )}
+                        <canvas ref={canvasRef} style={{ display: 'none' }} width="640" height="480"></canvas>
+                        {imageCaptured && (
+                            <img src={imageCaptured} alt="Captured" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        )}
                     </div>
                     <div className="connectivities-icons">
-                            <div  className="icon-container">
+                        {getUpdatedIcons().map((item) => (
+                            <div key={item.id} className="icon-container">
                                 <div className="icon-image-container">
-                                    <img src={MonitorRecorder} alt="" className="icon-image" />
+                                    <img src={item.icon} alt={item.title} className="icon-image" />
                                 </div>
-                                <span className="icon-title">Webcam</span>
+                                <span className="icon-title">{item.title}</span>
                             </div>
-                            <div  className="icon-container">
-                                <div className="icon-image-container">
-                                    <img src={Wifi} alt="" className="icon-image" />
-                                </div>
-                                <span className="icon-title">Speed</span>
-                            </div>
-                            <div  className="icon-container">
-                                <div className="icon-image-container">
-                                    {micAccess ?  <img src={TickCircle} alt="" className="icon-image" /> : <img src={MonitorRecorder} alt="" className="icon-image" />}
-                                </div>
-                                <span className="icon-title">Gadget Mic</span>
-                            </div>
-                            <div  className="icon-container">
-                                <div className="icon-image-container">
-                                    <img src={LampCharge} alt="" className="icon-image" />
-                                </div>
-                                <span className="icon-title">Lighting</span>
-                            </div>
+                        ))}
                     </div>
                 </div>
                 <div>
-                    {/* {micAccess === false && (
-                        <div className="mic-access-warning">
-                            <p>Microphone access is required. Please click the button below to enable your microphone.</p>
-                            <button onClick={requestMicAccess}>Enable Microphone</button>
+                    {(micAccess === false || cameraAccess === false || lightingGood === false || !online) && (
+                        <div className="access-warning">
+                            <p>
+                                {micAccess === false && "Microphone access is required. "}
+                                {cameraAccess === false && "Camera access is required. "}
+                                {lightingGood === false && "Good lighting is required. "}
+                                {!online && "Internet connection is required. "}
+                                Please click the button below to enable.
+                            </p>
+                            <button onClick={micAccess === false ? requestMicAccess : requestCameraAccess}>
+                                {micAccess === false ? "Enable Microphone" : "Enable Camera"}
+                            </button>
                         </div>
-                    )} */}
-                    <Button />
+                    )}
+                    {(micAccess && cameraAccess && lightingGood && online) && (
+                        <Button onClick={captureImage} />
+                    )}
                 </div>
             </div>
         </div>
